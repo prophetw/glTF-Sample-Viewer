@@ -263,8 +263,9 @@ class gltfRenderer
         if (this.visibleLights.length === 0 && !state.renderingParameters.useIBL &&
             state.renderingParameters.useDirectionalLightsWithDisabledIBL)
         {
+            console.log('add directionalLights ');
             this.visibleLights.push([null, this.lightKey]);
-            this.visibleLights.push([null, this.lightFill]);
+            // this.visibleLights.push([null, this.lightFill]);
         }
 
         mat4.multiply(this.viewProjectionMatrix, this.projMatrix, this.viewMatrix);
@@ -709,6 +710,7 @@ class gltfRenderer
                 mappingFound = true;
             }
         }
+        console.log(' Frag Defineds ', fragDefines);
 
         if(mappingFound == false) { // fallback
             fragDefines.push("DEBUG DEBUG_NONE");

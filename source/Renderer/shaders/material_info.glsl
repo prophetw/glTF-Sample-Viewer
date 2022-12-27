@@ -111,24 +111,24 @@ NormalInfo getNormalInfo(vec3 v)
     vec3 n, t, b, ng;
 
     // Compute geometrical TBN:
-#ifdef HAS_NORMAL_VEC3
-#ifdef HAS_TANGENT_VEC4
-    // Trivial TBN computation, present as vertex attribute.
-    // Normalize eigenvectors as matrix is linearly interpolated.
-    t = normalize(v_TBN[0]);
-    b = normalize(v_TBN[1]);
-    ng = normalize(v_TBN[2]);
-#else
-    // Normals are either present as vertex attributes or approximated.
-    ng = normalize(v_Normal);
-    t = normalize(t_ - ng * dot(ng, t_));
-    b = cross(ng, t);
-#endif
-#else
-    ng = normalize(cross(dFdx(v_Position), dFdy(v_Position)));
-    t = normalize(t_ - ng * dot(ng, t_));
-    b = cross(ng, t);
-#endif
+    #ifdef HAS_NORMAL_VEC3
+        #ifdef HAS_TANGENT_VEC4
+            // Trivial TBN computation, present as vertex attribute.
+            // Normalize eigenvectors as matrix is linearly interpolated.
+            t = normalize(v_TBN[0]);
+            b = normalize(v_TBN[1]);
+            ng = normalize(v_TBN[2]);
+        #else
+            // Normals are either present as vertex attributes or approximated.
+            ng = normalize(v_Normal);
+            t = normalize(t_ - ng * dot(ng, t_));
+            b = cross(ng, t);
+        #endif
+    #else
+        ng = normalize(cross(dFdx(v_Position), dFdy(v_Position)));
+        t = normalize(t_ - ng * dot(ng, t_));
+        b = cross(ng, t);
+    #endif
 
 
     // For a back-facing surface, the tangential basis vectors are negated.
@@ -142,14 +142,14 @@ NormalInfo getNormalInfo(vec3 v)
     // Compute normals:
     NormalInfo info;
     info.ng = ng;
-#ifdef HAS_NORMAL_MAP
-    info.ntex = texture(u_NormalSampler, UV).rgb * 2.0 - vec3(1.0);
-    info.ntex *= vec3(u_NormalScale, u_NormalScale, 1.0);
-    info.ntex = normalize(info.ntex);
-    info.n = normalize(mat3(t, b, ng) * info.ntex);
-#else
-    info.n = ng;
-#endif
+    #ifdef HAS_NORMAL_MAP
+        info.ntex = texture(u_NormalSampler, UV).rgb * 2.0 - vec3(1.0);
+        info.ntex *= vec3(u_NormalScale, u_NormalScale, 1.0);
+        info.ntex = normalize(info.ntex);
+        info.n = normalize(mat3(t, b, ng) * info.ntex);
+    #else
+        info.n = ng;
+    #endif
     info.t = t;
     info.b = b;
     return info;
@@ -157,17 +157,17 @@ NormalInfo getNormalInfo(vec3 v)
 
 
 #ifdef MATERIAL_CLEARCOAT
-vec3 getClearcoatNormal(NormalInfo normalInfo)
-{
-#ifdef HAS_CLEARCOAT_NORMAL_MAP
-    vec3 n = texture(u_ClearcoatNormalSampler, getClearcoatNormalUV()).rgb * 2.0 - vec3(1.0);
-    n *= vec3(u_ClearcoatNormalScale, u_ClearcoatNormalScale, 1.0);
-    n = mat3(normalInfo.t, normalInfo.b, normalInfo.ng) * normalize(n);
-    return n;
-#else
-    return normalInfo.ng;
-#endif
-}
+    vec3 getClearcoatNormal(NormalInfo normalInfo)
+    {
+        #ifdef HAS_CLEARCOAT_NORMAL_MAP
+            vec3 n = texture(u_ClearcoatNormalSampler, getClearcoatNormalUV()).rgb * 2.0 - vec3(1.0);
+            n *= vec3(u_ClearcoatNormalScale, u_ClearcoatNormalScale, 1.0);
+            n = mat3(normalInfo.t, normalInfo.b, normalInfo.ng) * normalize(n);
+            return n;
+        #else
+            return normalInfo.ng;
+        #endif
+    }
 #endif
 
 
@@ -175,17 +175,17 @@ vec4 getBaseColor()
 {
     vec4 baseColor = vec4(1);
 
-#if defined(MATERIAL_SPECULARGLOSSINESS)
-    baseColor = u_DiffuseFactor;
-#elif defined(MATERIAL_METALLICROUGHNESS)
-    baseColor = u_BaseColorFactor;
-#endif
+    #if defined(MATERIAL_SPECULARGLOSSINESS)
+        baseColor = u_DiffuseFactor;
+    #elif defined(MATERIAL_METALLICROUGHNESS)
+        baseColor = u_BaseColorFactor;
+    #endif
 
-#if defined(MATERIAL_SPECULARGLOSSINESS) && defined(HAS_DIFFUSE_MAP)
-    baseColor *= texture(u_DiffuseSampler, getDiffuseUV());
-#elif defined(MATERIAL_METALLICROUGHNESS) && defined(HAS_BASE_COLOR_MAP)
-    baseColor *= texture(u_BaseColorSampler, getBaseColorUV());
-#endif
+    #if defined(MATERIAL_SPECULARGLOSSINESS) && defined(HAS_DIFFUSE_MAP)
+        baseColor *= texture(u_DiffuseSampler, getDiffuseUV());
+    #elif defined(MATERIAL_METALLICROUGHNESS) && defined(HAS_BASE_COLOR_MAP)
+        baseColor *= texture(u_BaseColorSampler, getBaseColorUV());
+    #endif
 
     return baseColor * getVertexColor();
 }

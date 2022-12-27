@@ -24,11 +24,14 @@ class UIModel
         const modelURL = urlParams.get("model");
 
         let dropdownGltfChanged = undefined;
+        console.log(' --- modelURL ', modelURL);
         if (modelURL === null)
         {
             dropdownGltfChanged = app.modelChanged$.pipe(
                 pluck("event", "msg"),
-                startWith("DamagedHelmet"),
+                // startWith("DamagedHelmet"),
+                // startWith("EnvironmentTest"),
+                startWith("TextureEncodingTest"),
                 map(value => {
                     app.flavours = this.pathProvider.getModelFlavours(value);
                     app.selectedFlavour = "glTF";
